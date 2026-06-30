@@ -14,13 +14,13 @@ const claridgeRoleLabels: Record<string, string> = {
 
 const claridgeInfoLinks = [
   { roleKey: 'claridge', links: [
-    { key: 'claridge_sheet_url', label: 'Role sheet' },
+    { key: 'claridge_sheet_url', label: 'Case document' },
   ]},
   { roleKey: 'tolemite', links: [
-    { key: 'tolemite_sheet_url', label: 'Role sheet' },
+    { key: 'tolemite_sheet_url', label: 'Case document' },
   ]},
   { roleKey: 'bard', links: [
-    { key: 'bard_sheet_url', label: 'Role sheet' },
+    { key: 'bard_sheet_url', label: 'Case document' },
   ]},
 ]
 

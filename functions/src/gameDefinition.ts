@@ -132,16 +132,16 @@ export const claridgeGameDef: GameDefinition = {
     { key: 'claridge_role_name', kind: 'string', default: 'Claridge' },
     { key: 'tolemite_role_name', kind: 'string', default: 'Tolemite' },
     { key: 'bard_role_name',     kind: 'string', default: 'BARD'     },
-    // Placeholder role-sheet PDF URLs — Gary/Elena drop real PDFs in public/role-info/.
+    // One shared public case document (no per-role packets) — all three roles link it.
     { key: 'claridge_sheet_url', kind: 'url', default: '/role-info/claridge.pdf' },
-    { key: 'tolemite_sheet_url', kind: 'url', default: '/role-info/tolemite.pdf' },
-    { key: 'bard_sheet_url',     kind: 'url', default: '/role-info/bard.pdf'     },
+    { key: 'tolemite_sheet_url', kind: 'url', default: '/role-info/claridge.pdf' },
+    { key: 'bard_sheet_url',     kind: 'url', default: '/role-info/claridge.pdf' },
   ],
 
   roleInfoLinks: [
-    { roleKey: 'claridge', links: [{ key: 'claridge_sheet_url', label: 'Role sheet' }] },
-    { roleKey: 'tolemite', links: [{ key: 'tolemite_sheet_url', label: 'Role sheet' }] },
-    { roleKey: 'bard',     links: [{ key: 'bard_sheet_url',     label: 'Role sheet' }] },
+    { roleKey: 'claridge', links: [{ key: 'claridge_sheet_url', label: 'Case document' }] },
+    { roleKey: 'tolemite', links: [{ key: 'tolemite_sheet_url', label: 'Case document' }] },
+    { roleKey: 'bard',     links: [{ key: 'bard_sheet_url',     label: 'Case document' }] },
   ],
 
   // ── Knowledge-check + prep questions (from Claridge_KC_Questions_v1.md) ──────

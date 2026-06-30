@@ -1,0 +1,13 @@
+{
+  "name": "claridge",
+  "version": "1.0.0",
+  "description": "C.K. Claridge patent-settlement negotiation game (local build)",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs"
+}

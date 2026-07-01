@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { Fragment, useEffect, useRef, useState } from 'react'
 import { doc, onSnapshot } from 'firebase/firestore'
 import { db } from '../firebase'
 import { submitLeadOutcome, submitConfirmation, type CallArgs } from '../api'
@@ -211,6 +211,78 @@ export function SchemaField({
         style={{ width: 18, height: 18 }}
       />
       <label htmlFor={`field-${field.key}`} style={fieldLabelStyle}>{lbl}</label>
+    </div>
+  )
+}
+
+// ── Claridge contract grid — 3 parties (rows) × 2 columns (Past | Future) ──────
+// PRESENTATION ONLY. Each cell maps to the exact schema key the scoring reads —
+// C_past/C_future, T_past/T_future, B_past/B_future — so the submitted outcome
+// object is byte-identical to the old stacked form. Do NOT rename these keys.
+// Columns: Past sales first (left), Future sales (right). Values are royalty %.
+
+const GRID_COLUMNS = [
+  { side: 'past',   header: 'Past sales' },
+  { side: 'future', header: 'Future sales' },
+] as const
+
+const GRID_ROWS = [
+  { label: 'Claridge pays',     keys: { past: 'C_past', future: 'C_future' } },
+  { label: 'Tolemite receives', keys: { past: 'T_past', future: 'T_future' } },
+  { label: 'BARD receives',     keys: { past: 'B_past', future: 'B_future' } },
+] as const
+
+// The shared Notes field (unchanged) — rendered below the grid.
+const NOTES_FIELD = claridgeSchema.find(f => f.key === 'notes') as FieldDef
+
+function ContractGrid({
+  formValues,
+  onChange,
+  disabled,
+}: {
+  formValues: FormValues
+  onChange: (key: string, v: string) => void
+  disabled: boolean
+}) {
+  return (
+    // Wrapper scrolls horizontally on a narrow screen rather than breaking the grid.
+    <div style={gridWrapStyle}>
+      <div style={gridStyle}>
+        {/* Header row: empty corner + column headers */}
+        <div />
+        {GRID_COLUMNS.map(col => (
+          <div key={col.side} style={gridColHeaderStyle}>
+            {col.header}
+            <span style={gridUnitStyle}>royalty %</span>
+          </div>
+        ))}
+
+        {/* One row per party */}
+        {GRID_ROWS.map(row => (
+          <Fragment key={row.label}>
+            <div style={gridRowLabelStyle}>{row.label}</div>
+            {GRID_COLUMNS.map(col => {
+              const key = row.keys[col.side]
+              return (
+                <div key={key} style={gridCellStyle}>
+                  <input
+                    type="number"
+                    min={0}
+                    max={100}
+                    step="any"
+                    value={(formValues[key] as string) ?? ''}
+                    onChange={e => onChange(key, e.target.value)}
+                    disabled={disabled}
+                    aria-label={`${row.label} — ${col.header} (royalty %)`}
+                    style={gridInputStyle}
+                  />
+                  <span style={gridPctStyle}>%</span>
+                </div>
+              )
+            })}
+          </Fragment>
+        ))}
+      </div>
     </div>
   )
 }
@@ -430,19 +502,22 @@ export default function OutcomeReporting({
           </div>
         )}
         <p style={{ fontSize: '0.9rem', color: '#555', marginBottom: '1rem', lineHeight: 1.5 }}>
-          On each side (future and past), the Tolemite and BARD shares must add up to the
-          Claridge royalty rate (T + B = C).
+          In each column, Tolemite + BARD must equal what Claridge pays (T + B = C).
         </p>
         <div style={{ marginBottom: '1rem' }}>
-          {claridgeSchema.map(field => (
-            <SchemaField
-              key={field.key}
-              field={field}
-              value={formValues[field.key] ?? (field.type === 'boolean' ? false : '')}
-              onChange={v => handleFieldChange(field.key, v)}
-              disabled={submitting}
-            />
-          ))}
+          <ContractGrid
+            formValues={formValues}
+            onChange={handleFieldChange}
+            disabled={submitting}
+          />
+        </div>
+        <div style={{ marginBottom: '1rem' }}>
+          <SchemaField
+            field={NOTES_FIELD}
+            value={(formValues['notes'] as string) ?? ''}
+            onChange={v => handleFieldChange('notes', v)}
+            disabled={submitting}
+          />
         </div>
         {formError   && <p style={errorStyle}>{formError}</p>}
         {actionError && <p style={errorStyle}>{actionError}</p>}
@@ -536,3 +611,30 @@ const outcomeLabelStyle = { color: '#555', marginRight: '1rem' }
 const fieldRowStyle = { display: 'flex', flexDirection: 'column' as const, gap: '0.25rem', marginBottom: '1rem' }
 const fieldLabelStyle = { fontSize: '0.9rem', fontWeight: 600, color: '#333' }
 const inputStyle = { fontSize: '1rem', padding: '0.4rem 0.6rem', border: '1px solid #ccc', borderRadius: 4, maxWidth: '16rem' }
+
+// ── Contract-grid styles (3 rows × 2 cols) ──────────────────────────────────────
+const gridWrapStyle = { overflowX: 'auto' as const, WebkitOverflowScrolling: 'touch' as const, paddingBottom: '0.25rem' }
+const gridStyle = {
+  display: 'grid',
+  gridTemplateColumns: 'minmax(8.5rem, max-content) minmax(6.5rem, 1fr) minmax(6.5rem, 1fr)',
+  columnGap: '0.75rem',
+  rowGap: '0.6rem',
+  alignItems: 'center' as const,
+  minWidth: '20rem',
+}
+const gridColHeaderStyle = {
+  display: 'flex', flexDirection: 'column' as const,
+  fontSize: '0.9rem', fontWeight: 700, color: '#333',
+  paddingBottom: '0.3rem', borderBottom: '2px solid #e2e8f0',
+}
+const gridUnitStyle = { fontSize: '0.72rem', fontWeight: 400, color: '#888' }
+const gridRowLabelStyle = { fontSize: '0.9rem', fontWeight: 600, color: '#333', paddingRight: '0.5rem' }
+const gridCellStyle = { position: 'relative' as const }
+const gridInputStyle = {
+  fontSize: '1rem', padding: '0.4rem 1.8rem 0.4rem 0.6rem',
+  border: '1px solid #ccc', borderRadius: 4, width: '100%', boxSizing: 'border-box' as const,
+}
+const gridPctStyle = {
+  position: 'absolute' as const, right: '0.6rem', top: '50%', transform: 'translateY(-50%)',
+  color: '#888', fontSize: '0.9rem', pointerEvents: 'none' as const,
+}

@@ -13,7 +13,7 @@ import {
   type ReportTileConfig,
   type AiTextRow,
 } from '@mygames/game-ui'
-import { SchemaField, parseForm, type FormValues } from '../phases/OutcomeReporting'
+import { SchemaField, ContractGrid, NOTES_FIELD, parseForm, type FormValues } from '../phases/OutcomeReporting'
 import { type OutcomeSchema } from '../gameConfig'
 
 // ── Types ─────────────────────────────────────────────────────────────────────
@@ -395,11 +395,10 @@ export default function Reports() {
               Edit group {editing.groupNumber ?? '—'} contract
             </h3>
             <p style={{ margin: '0 0 1rem', fontSize: '0.85rem', color: '#666' }}>
-              Applies to the whole group; all members' raw scores recompute. For a group that
-              went to court, uncheck nothing — enter the simulated court terms as the deal.
+              Applies to the whole group; all members' raw scores recompute.
             </p>
 
-            <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '1rem', fontWeight: 600 }}>
+            <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.4rem', fontWeight: 600 }}>
               <input
                 type="checkbox"
                 checked={dealReached}
@@ -407,19 +406,31 @@ export default function Reports() {
                 disabled={saving}
                 style={{ width: 18, height: 18 }}
               />
-              Deal reached {dealReached ? '' : '— group walked away (no deal)'}
+              Outcome entered
             </label>
+            <p style={{ margin: '0 0 1rem', fontSize: '0.8rem', color: '#666', lineHeight: 1.5 }}>
+              Check when the group has an outcome to score — a negotiated settlement, or the
+              simulated court verdict for a group that went to court. Uncheck only if there's no
+              outcome at all.
+            </p>
 
             <div style={{ opacity: dealReached ? 1 : 0.5 }}>
-              {schema.map(field => (
+              <p style={{ fontSize: '0.85rem', color: '#555', margin: '0 0 0.75rem', lineHeight: 1.5 }}>
+                In each column, Tolemite + BARD must equal what Claridge pays (T + B = C).
+              </p>
+              <ContractGrid
+                formValues={formValues}
+                onChange={(key, v) => { setFormValues(prev => ({ ...prev, [key]: v })); setEditError(null) }}
+                disabled={saving || !dealReached}
+              />
+              <div style={{ marginTop: '1rem' }}>
                 <SchemaField
-                  key={field.key}
-                  field={field}
-                  value={formValues[field.key] ?? (field.type === 'boolean' ? false : '')}
-                  onChange={v => { setFormValues(prev => ({ ...prev, [field.key]: v })); setEditError(null) }}
+                  field={NOTES_FIELD}
+                  value={(formValues['notes'] as string) ?? ''}
+                  onChange={v => { setFormValues(prev => ({ ...prev, notes: v })); setEditError(null) }}
                   disabled={saving || !dealReached}
                 />
-              ))}
+              </div>
             </div>
 
             {editError && <p style={{ color: '#c00', margin: '0 0 0.75rem', fontSize: '0.9rem' }}>{editError}</p>}

@@ -233,9 +233,10 @@ const GRID_ROWS = [
 ] as const
 
 // The shared Notes field (unchanged) — rendered below the grid.
-const NOTES_FIELD = claridgeSchema.find(f => f.key === 'notes') as FieldDef
+export const NOTES_FIELD = claridgeSchema.find(f => f.key === 'notes') as FieldDef
 
-function ContractGrid({
+// Exported so the instructor Reports editor renders the identical grid (no duplication).
+export function ContractGrid({
   formValues,
   onChange,
   disabled,

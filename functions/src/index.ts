@@ -11,6 +11,7 @@ import {
   makeSyncRoster,
   makeTriggerMatching,
   makeStartNegotiation,
+  makeGetGroupMemberEmails,
   makeSubmitLeadOutcome,
   makeSubmitConfirmation,
   makeSubmitInstructorOutcome,
@@ -48,6 +49,7 @@ export const getRoster              = makeGetRoster(claridgeGameDef)
 export const syncRoster             = makeSyncRoster(claridgeGameDef)
 export const triggerMatching            = makeTriggerMatching(claridgeGameDef)
 export const startNegotiation           = makeStartNegotiation(claridgeGameDef)
+export const getGroupMemberEmails      = makeGetGroupMemberEmails(claridgeGameDef)
 export const submitLeadOutcome          = makeSubmitLeadOutcome(claridgeGameDef)
 export const submitConfirmation         = makeSubmitConfirmation(claridgeGameDef)
 export const submitInstructorOutcome    = makeSubmitInstructorOutcome(claridgeGameDef)

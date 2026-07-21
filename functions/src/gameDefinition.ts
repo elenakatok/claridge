@@ -1,5 +1,7 @@
 import type { Outcome, OutcomeSchema, RoleConfig } from '@mygames/game-engine'
 import type { GameDefinition } from '@mygames/game-server'
+// Shared latecomer joinability (Latecomer_Placement_Spec_v1 §3.1) — one predicate for all five negotiation games.
+import { negotiationIsJoinable } from '@mygames/game-server'
 
 // ── Role config ───────────────────────────────────────────────────────────────
 // Frozen role keys: 'claridge', 'tolemite', 'bard'. The C.K. Claridge patent
@@ -127,6 +129,9 @@ export const claridgeGameDef: GameDefinition = {
   reservations: { claridge: 0, tolemite: 0, bard: 0 },
   corsOrigins: ['https://claridge.mygames.live'],
   classroom: { callbackSecretId: 'claridge_v1' },
+  // Latecomer auto-placement (spec §3.1). Joinable = group not yet negotiating.
+  // No onPlace: negotiation placement is group_id only (audit 0b).
+  isJoinable: negotiationIsJoinable,
 
   configFields: [
     { key: 'claridge_role_name', kind: 'string', default: 'Claridge' },
